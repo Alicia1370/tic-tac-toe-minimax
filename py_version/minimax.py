@@ -13,9 +13,11 @@ Author: Clederson Cruz
 Year: 2017
 License: GNU GENERAL PUBLIC LICENSE (GPL)
 
-Example:
-Paul Lu
-CCID:  paullu
+Name: Qinglin (Alicia) Cheng
+CCID :1679590
+CMPUT274, Fall 2020
+
+Weekly Exercise 6: OO Minimax
 """
 
 HUMAN = -1
