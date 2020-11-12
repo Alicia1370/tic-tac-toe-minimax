@@ -30,6 +30,27 @@ class board():
                 [0, 0, 0],
             ]
 
+    def render(self, c_choice, h_choice):
+        """
+        Print the board on console
+        :param state: current state of the board
+        """
+        chars = {
+            -1: h_choice,
+            +1: c_choice,
+            0: ' '
+        }
+
+        str_line = '---------------'
+
+        print('\n' + str_line)
+        for row in get_board():
+            for cell in row:
+                symbol = chars[cell]
+                print(f'| {symbol} |', end='')
+            print('\n' + str_line)
+
+
     def __str__(self):
         return 'board = ' + str(self.board)
 
@@ -181,27 +202,6 @@ def clean():
         system('cls')
     else:
         system('clear')
-
-
-def render(state, c_choice, h_choice):
-    """
-    Print the board on console
-    :param state: current state of the board
-    """
-
-    chars = {
-        -1: h_choice,
-        +1: c_choice,
-        0: ' '
-    }
-    str_line = '---------------'
-
-    print('\n' + str_line)
-    for row in state:
-        for cell in row:
-            symbol = chars[cell]
-            print(f'| {symbol} |', end='')
-        print('\n' + str_line)
 
 
 def ai_turn(c_choice, h_choice):
