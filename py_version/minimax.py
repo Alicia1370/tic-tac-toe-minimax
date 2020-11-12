@@ -30,6 +30,34 @@ class board():
                 [0, 0, 0],
             ]
 
+
+    def valid_move(x, y):
+        """
+        A move is valid if the chosen cell is empty
+        :param x: X coordinate
+        :param y: Y coordinate
+        :return: True if the board[x][y] is empty
+        """
+        if [x, y] in empty_cells(board):
+            return True
+        else:
+            return False
+
+
+    def set_move(x, y, player):
+        """
+        Set the move on board, if the coordinates are valid
+        :param x: X coordinate
+        :param y: Y coordinate
+        :param player: the current player
+        """
+        if valid_move(x, y):
+            board[x][y] = player
+            return True
+        else:
+            return False
+
+
     def render(self, c_choice, h_choice):
         """
         Print the board on console
