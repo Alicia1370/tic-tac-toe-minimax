@@ -20,13 +20,23 @@ CMPUT274, Fall 2020
 Weekly Exercise 6: OO Minimax
 """
 
-HUMAN = -1
-COMP = +1
-board = [
-    [0, 0, 0],
-    [0, 0, 0],
-    [0, 0, 0],
-]
+class board():
+    def __init__(self):
+        self.HUMAN = -1
+        self.COMP = +1
+        self.board = [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]
+
+    def __str__(self):
+        return 'board = ' + str(self.board)
+
+
+    def __repr__(self):
+        identity = 'the id is {}'.format(id(self))
+        return identity
 
 
 def evaluate(state):
