@@ -31,6 +31,57 @@ class board():
             ]
 
 
+    def wins(self, player):
+        """
+        This function tests if a specific player wins. Possibilities:
+        * Three rows    [X X X] or [O O O]
+        * Three cols    [X X X] or [O O O]
+        * Two diagonals [X X X] or [O O O]
+        :param state: the state of the current board
+        :param player: a human or a computer
+        :return: True if the player wins
+        """
+        state = self.get_board()
+        win_state = [
+            [state[0][0], state[0][1], state[0][2]],
+            [state[1][0], state[1][1], state[1][2]],
+            [state[2][0], state[2][1], state[2][2]],
+            [state[0][0], state[1][0], state[2][0]],
+            [state[0][1], state[1][1], state[2][1]],
+            [state[0][2], state[1][2], state[2][2]],
+            [state[0][0], state[1][1], state[2][2]],
+            [state[2][0], state[1][1], state[0][2]],
+        ]
+        if [player, player, player] in win_state:
+            return True
+        else:
+            return False
+
+    def game_over(self, state):
+        """
+        This function test if the human or computer wins
+        :param state: the state of the current board
+        :return: True if the human or computer wins
+        """
+        return wins(state, HUMAN) or wins(state, COMP)
+
+
+    def empty_cells(self):
+        """
+        Each empty cell will be added into cells' list
+        :param state: the state of the current board
+        :return: a list of empty cells
+        """
+        cells = []
+    
+        for x, row in enumerate(self.get_board()):
+            for y, cell in enumerate(row):
+                if cell == 0:
+                    cells.append([x, y])
+    
+        return cells
+
+        
     def valid_move(x, y):
         """
         A move is valid if the chosen cell is empty
@@ -89,12 +140,8 @@ class board():
 
 
 class state():
-    def __init__(self):
-        self.state = [
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-            ]
+    def __init__(self, state):
+        self.state = state
 
 
     def evaluate(state):
@@ -111,6 +158,8 @@ class state():
             score = 0
     
         return score
+
+
     
     def __str__(self):
         return 'current state = ' + str(self.state)
@@ -120,7 +169,7 @@ class state():
         identity = 'the id is {}'.format(id(self))
         return identity
 
-        
+
 def evaluate(state):
     """
     Function to heuristic evaluation of state.
