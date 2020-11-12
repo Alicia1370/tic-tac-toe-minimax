@@ -88,6 +88,39 @@ class board():
         return identity
 
 
+class state():
+    def __init__(self):
+        self.state = [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]
+
+
+    def evaluate(state):
+        """
+        Function to heuristic evaluation of state.
+        :param state: the state of the current board
+        :return: +1 if the computer wins; -1 if the human wins; 0 draw
+        """
+        if wins(state, COMP):
+            score = +1
+        elif wins(state, HUMAN):
+            score = -1
+        else:
+            score = 0
+    
+        return score
+    
+    def __str__(self):
+        return 'current state = ' + str(self.state)
+
+
+    def __repr__(self):
+        identity = 'the id is {}'.format(id(self))
+        return identity
+
+        
 def evaluate(state):
     """
     Function to heuristic evaluation of state.
