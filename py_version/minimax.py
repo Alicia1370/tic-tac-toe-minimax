@@ -40,20 +40,36 @@ class board():
     def get_COMP(self):
         return(self.COMP)
 
+
+    def newstate(self, states):
+        # Create a new state based on state passed
+        # Evaluate any state passed as parameter
+        newstate = state(states)
+        return(newstate)
+
+    def newboard(self):
+        # Create a new state based on current board
+        # Evaluate current board
+        current_state = state(self.get_board()) 
+        return(current_state)
+
+
     def evaluate(self, state):
         """
         Function to heuristic evaluation of state.
         :param state: the state of the current board
         :return: +1 if the computer wins; -1 if the human wins; 0 draw
         """
-        if wins(state, self.get_COMP()):
+
+        if self.newstate(state).wins(self.get_COMP()):
             score = +1
-        elif wins(state, self.get_HUMAN()):
+        elif self.newstate(state).wins(self.get_HUMAN()):
             score = -1
         else:
             score = 0
     
         return score
+
 
     def game_over(self, state):
         """
@@ -61,7 +77,7 @@ class board():
         :param state: the state of the current board
         :return: True if the human or computer wins
         """
-        return wins(state, self.get_HUMAN()) or wins(state, self.get_COMP())
+        return self.newstate(state).wins(self.get_HUMAN()) or self.newstate(state).wins(self.get_COMP())
 
     def valid_move(self, x, y):
         """
@@ -70,7 +86,8 @@ class board():
         :param y: Y coordinate
         :return: True if the board[x][y] is empty
         """
-        if [x, y] in empty_cells(self.get_board()):
+
+        if [x, y] in self.newboard().empty_cells():
             return True
         else:
             return False
@@ -136,8 +153,8 @@ class board():
         if depth == 0 or self.game_over(state):
             score = self.evaluate(state)
             return [-1, -1, score]
-    
-        for cell in empty_cells(state):
+
+        for cell in self.newstate(state).empty_cells():
             x, y = cell[0], cell[1]
             state[x][y] = player
             score = self.minimax(state, depth - 1, -player)
@@ -161,7 +178,8 @@ class board():
         :param h_choice: human's choice X or O
         :return:
         """
-        depth = len(empty_cells(self.get_board()))
+
+        depth = len(self.newboard().empty_cells())
         if depth == 0 or self.game_over(self.get_board()):
             return
     
@@ -188,7 +206,8 @@ class board():
         :param h_choice: human's choice X or O
         :return:
         """
-        depth = len(empty_cells(self.get_board()))
+
+        depth = len(self.newboard().empty_cells())
         if depth == 0 or self.game_over(self.get_board()):
             return
     
@@ -220,47 +239,56 @@ class board():
                 print('Bad choice')
 
 
+class state(board):
+    """docstring for stat"""
+    def __init__(self, state):
+        super().__init__()
+        self.state = state
+        
+    def get_state(self):
+        return(self.state)
 
-def wins(state, player):
-    """
-    This function tests if a specific player wins. Possibilities:
-    * Three rows    [X X X] or [O O O]
-    * Three cols    [X X X] or [O O O]
-    * Two diagonals [X X X] or [O O O]
-    :param state: the state of the current board
-    :param player: a human or a computer
-    :return: True if the player wins
-    """
-    win_state = [
-        [state[0][0], state[0][1], state[0][2]],
-        [state[1][0], state[1][1], state[1][2]],
-        [state[2][0], state[2][1], state[2][2]],
-        [state[0][0], state[1][0], state[2][0]],
-        [state[0][1], state[1][1], state[2][1]],
-        [state[0][2], state[1][2], state[2][2]],
-        [state[0][0], state[1][1], state[2][2]],
-        [state[2][0], state[1][1], state[0][2]],
-    ]
-    if [player, player, player] in win_state:
-        return True
-    else:
-        return False
+    def wins(self, player):
+        """
+        This function tests if a specific player wins. Possibilities:
+        * Three rows    [X X X] or [O O O]
+        * Three cols    [X X X] or [O O O]
+        * Two diagonals [X X X] or [O O O]
+        :param state: the state of the current board
+        :param player: a human or a computer
+        :return: True if the player wins
+        """
+        state = self.get_state()
+        win_state = [
+            [state[0][0], state[0][1], state[0][2]],
+            [state[1][0], state[1][1], state[1][2]],
+            [state[2][0], state[2][1], state[2][2]],
+            [state[0][0], state[1][0], state[2][0]],
+            [state[0][1], state[1][1], state[2][1]],
+            [state[0][2], state[1][2], state[2][2]],
+            [state[0][0], state[1][1], state[2][2]],
+            [state[2][0], state[1][1], state[0][2]],
+        ]
+        if [player, player, player] in win_state:
+            return True
+        else:
+            return False
+    
 
-
-def empty_cells(state):
-    """
-    Each empty cell will be added into cells' list
-    :param state: the state of the current board
-    :return: a list of empty cells
-    """
-    cells = []
-
-    for x, row in enumerate(state):
-        for y, cell in enumerate(row):
-            if cell == 0:
-                cells.append([x, y])
-
-    return cells
+    def empty_cells(self):
+        """
+        Each empty cell will be added into cells' list
+        :param state: the state of the current board
+        :return: a list of empty cells
+        """
+        cells = []
+    
+        for x, row in enumerate(self.get_state()):
+            for y, cell in enumerate(row):
+                if cell == 0:
+                    cells.append([x, y])
+    
+        return cells
 
 
 def clean():
@@ -276,6 +304,7 @@ def clean():
         system('cls')
     else:
         system('clear')
+
 
 
 def main():
@@ -321,7 +350,9 @@ def main():
 
     # Main loop of this game
     board1 = board()
-    while len(empty_cells(board1.get_board())) > 0 and not board1.game_over(board1.get_board()):
+
+
+    while len(board1.newboard().empty_cells()) > 0 and not board1.game_over(board1.get_board()):
         if first == 'N':
             board1.ai_turn(c_choice, h_choice)
             first = ''
@@ -329,16 +360,18 @@ def main():
         board1.human_turn(c_choice, h_choice)
         board1.ai_turn(c_choice, h_choice)
 
+
     # Game over message
-    boardd = board1.get_board()
+
     HUMAN = board1.get_HUMAN()
     COMP = board1.get_COMP()
-    if wins(boardd, HUMAN):
+
+    if board1.newboard().wins(HUMAN):
         clean()
         print(f'Human turn [{h_choice}]')
         board1.render(c_choice, h_choice)
         print('YOU WIN!')
-    elif wins(boardd, COMP):
+    elif board1.newboard().wins(COMP):
         clean()
         print(f'Computer turn [{c_choice}]')
         board1.render(c_choice, h_choice)
