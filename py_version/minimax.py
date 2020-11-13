@@ -32,196 +32,20 @@ class basic():
     def get_COMP(self):
         return(self.COMP)
 
-class board(basic):
-    def __init__(self):
-        self.board = [
-                [0, 0, 0],
-                [0, 0, 0],
-                [0, 0, 0],
-            ]
-
-
-    def get_board(self):
-        return(self.board)
-
-
-    def newstate(self, states):
-        # Create a new state based on state passed
-        # Evaluate any state passed as parameter
-        newstate = state(states)
-        return(newstate)
-
-    def newboard(self):
-        # Create a new state based on current board
-        # Evaluate current board
-        current_state = state(self.get_board()) 
-        return(current_state)
-
-
-    def valid_move(self, x, y):
-        """
-        A move is valid if the chosen cell is empty
-        :param x: X coordinate
-        :param y: Y coordinate
-        :return: True if the board[x][y] is empty
-        """
-
-        if [x, y] in self.newboard().empty_cells():
-            return True
-        else:
-            return False
-
-
-    def set_move(self, x, y, player):
-        """
-        Set the move on board, if the coordinates are valid
-        :param x: X coordinate
-        :param y: Y coordinate
-        :param player: the current player
-        """
-        if self.valid_move(x, y):
-            self.get_board()[x][y] = player
-            return True
-        else:
-            return False
-
-
-    def render(self, c_choice, h_choice):
-        """
-        Print the board on console
-        :param state: current state of the board
-        """
-        chars = {
-            -1: h_choice,
-            +1: c_choice,
-            0: ' '
-        }
-
-        str_line = '---------------'
-
-        print('\n' + str_line)
-        for row in self.get_board():
-            for cell in row:
-                symbol = chars[cell]
-                print(f'| {symbol} |', end='')
-            print('\n' + str_line)
-
 
     def __str__(self):
-            return 'board = ' + str(self.get_board())
+        m = 'HUMAN = {}, COMP = {}'.format(self.get_HUMAN(), self.get_COMP())
+        return(m)
     
     
     def __repr__(self):
-            identity = 'the id is {}'.format(id(self))
-            return identity
-
-    def minimax(self, state, depth, player):
-        """
-        AI function that choice the best move
-        :param state: current state of the board
-        :param depth: node index in the tree (0 <= depth <= 9),
-        but never nine in this case (see iaturn() function)
-        :param player: an human or a computer
-        :return: a list with [the best row, best col, best score]
-        """
-        if player == self.get_COMP():
-            best = [-1, -1, -infinity]
-        else:
-            best = [-1, -1, +infinity]
-    
-        newstate = self.newstate(state)
-
-        if depth == 0 or newstate.game_over():
-            score = newstate.evaluate()
-            return [-1, -1, score]
-
-        for cell in newstate.empty_cells():
-            x, y = cell[0], cell[1]
-            state[x][y] = player
-            score = self.minimax(state, depth - 1, -player)
-            state[x][y] = 0
-            score[0], score[1] = x, y
-    
-            if player == self.get_COMP():
-                if score[2] > best[2]:
-                    best = score  # max value
-            else:
-                if score[2] < best[2]:
-                    best = score  # min value
-        return best
-
-    def ai_turn(self, c_choice, h_choice):
-        """
-        It calls the minimax function if the depth < 9,
-        else it choices a random coordinate.
-        :param c_choice: computer's choice X or O
-        :param h_choice: human's choice X or O
-        :return:
-        """
-
-        depth = len(self.newboard().empty_cells())
-        if depth == 0 or self.newboard().game_over():
-            return
-    
-        clean()
-        print(f'Computer turn [{c_choice}]')
-        self.render(c_choice, h_choice)
-    
-        if depth == 9:
-            x = choice([0, 1, 2])
-            y = choice([0, 1, 2])
-        else:
-            move = self.minimax(self.get_board(), depth, self.get_COMP())
-            x, y = move[0], move[1]
-    
-        self.set_move(x, y, self.get_COMP())
-        # Paul Lu.  Go full speed.
-        # time.sleep(1)
-
-
-    def human_turn(self, c_choice, h_choice):
-        """
-        The Human plays choosing a valid move.
-        :param c_choice: computer's choice X or O
-        :param h_choice: human's choice X or O
-        :return:
-        """
-
-        depth = len(self.newboard().empty_cells())
-        if depth == 0 or self.newboard().game_over():
-            return
-    
-        # Dictionary of valid moves
-        move = -1
-        moves = {
-            1: [0, 0], 2: [0, 1], 3: [0, 2],
-            4: [1, 0], 5: [1, 1], 6: [1, 2],
-            7: [2, 0], 8: [2, 1], 9: [2, 2],
-        }
-    
-        clean()
-        print(f'Human turn [{h_choice}]')
-        self.render(c_choice, h_choice)
-    
-        while move < 1 or move > 9:
-            try:
-                move = int(input('Use numpad (1..9): '))
-                coord = moves[move]
-                can_move = self.set_move(coord[0], coord[1], self.get_HUMAN())
-    
-                if not can_move:
-                    print('Bad move')
-                    move = -1
-            except (EOFError, KeyboardInterrupt):
-                print('Bye')
-                exit()
-            except (KeyError, ValueError):
-                print('Bad choice')
+        return str(id(self))
 
 
 class state(basic):
     """docstring for stat"""
     def __init__(self, state):
+        super().__init__()
         self.state = state
  
 
@@ -276,10 +100,11 @@ class state(basic):
     def game_over(self):
         """
         This function test if the human or computer wins
-        :param state: the state of the current board
+        based on current state
         :return: True if the human or computer wins
         """
         return self.wins(self.get_HUMAN()) or self.wins(self.get_COMP())
+
 
     def empty_cells(self):
         """
@@ -295,6 +120,231 @@ class state(basic):
                     cells.append([x, y])
     
         return cells
+
+
+    def __str__(self):
+        return 'state = ' + str(self.get_state())
+    
+    
+    def __repr__(self):
+        identity = 'The id is {}'.format(id(self))
+        return identity        
+
+
+class board(basic):
+    def __init__(self):
+        super().__init__()
+        self.board = [
+                [0, 0, 0],
+                [0, 0, 0],
+                [0, 0, 0],
+            ]
+
+
+    def get_board(self):
+        return(self.board)
+
+
+    def newstate(self, states):
+        # Create a new state based on state passed
+        # Evaluate any state passed as parameter
+        newstate = state(states)
+        return(newstate)
+
+    def currentBoard(self):
+        # Create a new state based on current board
+        # Evaluate current board
+        current_board = state(self.get_board()) 
+        return(current_board)
+
+
+    def board_depth(self):
+        depth = len(self.currentBoard().empty_cells())
+        return depth
+
+
+    def game_over(self):
+        """
+        This function test if the human or computer wins
+        based on current situation on board
+        :return: True if the human or computer wins
+        """
+        return self.currentBoard().game_over()
+
+
+    def wins(self, player):
+        """
+        This function invokes .wins() method in class 'state'
+        and test if a specific player wins based on current
+        state of board.
+        :param player: a human or a computer
+        :return: True if the player wins
+        """
+        return self.currentBoard().wins(player)
+
+    def valid_move(self, x, y):
+        """
+        A move is valid if the chosen cell is empty
+        :param x: X coordinate
+        :param y: Y coordinate
+        :return: True if the board[x][y] is empty
+        """
+
+        if [x, y] in self.currentBoard().empty_cells():
+            return True
+        else:
+            return False
+
+
+    def set_move(self, x, y, player):
+        """
+        Set the move on board, if the coordinates are valid
+        :param x: X coordinate
+        :param y: Y coordinate
+        :param player: the current player
+        """
+        if self.valid_move(x, y):
+            self.get_board()[x][y] = player
+            return True
+        else:
+            return False
+
+
+    def minimax(self, state, depth, player):
+        """
+        AI function that choice the best move
+        :param state: current state of the board
+        :param depth: node index in the tree (0 <= depth <= 9),
+        but never nine in this case (see iaturn() function)
+        :param player: an human or a computer
+        :return: a list with [the best row, best col, best score]
+        """
+        if player == self.get_COMP():
+            best = [-1, -1, -infinity]
+        else:
+            best = [-1, -1, +infinity]
+        
+        # Instantiate a new ojbect based on state passed
+        newstate = self.newstate(state)
+
+        # Invoke methods from state based on 'newstate'
+        if depth == 0 or newstate.game_over():
+            score = newstate.evaluate()
+            return [-1, -1, score]
+
+        for cell in newstate.empty_cells():
+            x, y = cell[0], cell[1]
+            state[x][y] = player
+            score = self.minimax(state, depth - 1, -player)
+            state[x][y] = 0
+            score[0], score[1] = x, y
+    
+            if player == self.get_COMP():
+                if score[2] > best[2]:
+                    best = score  # max value
+            else:
+                if score[2] < best[2]:
+                    best = score  # min value
+        return best
+
+
+    def render(self, c_choice, h_choice):
+        """
+        Print the board on console
+        :param state: current state of the board
+        """
+        chars = {
+            -1: h_choice,
+            +1: c_choice,
+            0: ' '
+        }
+
+        str_line = '---------------'
+
+        print('\n' + str_line)
+        for row in self.get_board():
+            for cell in row:
+                symbol = chars[cell]
+                print(f'| {symbol} |', end='')
+            print('\n' + str_line)
+
+
+    def ai_turn(self, c_choice, h_choice):
+        """
+        It calls the minimax function if the depth < 9,
+        else it choices a random coordinate.
+        :param c_choice: computer's choice X or O
+        :param h_choice: human's choice X or O
+        :return:
+        """
+
+        depth = self.board_depth()
+        if depth == 0 or self.game_over():
+            return
+    
+        clean()
+        print(f'Computer turn [{c_choice}]')
+        self.render(c_choice, h_choice)
+    
+        if depth == 9:
+            x = choice([0, 1, 2])
+            y = choice([0, 1, 2])
+        else:
+            move = self.minimax(self.get_board(), depth, self.get_COMP())
+            x, y = move[0], move[1]
+    
+        self.set_move(x, y, self.get_COMP())
+        # Paul Lu.  Go full speed.
+        # time.sleep(1)
+
+
+    def human_turn(self, c_choice, h_choice):
+        """
+        The Human plays choosing a valid move.
+        :param c_choice: computer's choice X or O
+        :param h_choice: human's choice X or O
+        :return:
+        """
+
+        depth = self.board_depth()
+        if depth == 0 or self.game_over():
+            return
+    
+        # Dictionary of valid moves
+        move = -1
+        moves = {
+            1: [0, 0], 2: [0, 1], 3: [0, 2],
+            4: [1, 0], 5: [1, 1], 6: [1, 2],
+            7: [2, 0], 8: [2, 1], 9: [2, 2],
+        }
+    
+        clean()
+        print(f'Human turn [{h_choice}]')
+        self.render(c_choice, h_choice)
+    
+        while move < 1 or move > 9:
+            try:
+                move = int(input('Use numpad (1..9): '))
+                coord = moves[move]
+                can_move = self.set_move(coord[0], coord[1], self.get_HUMAN())
+    
+                if not can_move:
+                    print('Bad move')
+                    move = -1
+            except (EOFError, KeyboardInterrupt):
+                print('Bye')
+                exit()
+            except (KeyError, ValueError):
+                print('Bad choice')
+
+
+    def __str__(self):
+        return 'board = ' + str(self.get_board())
+    
+    
+    def __repr__(self):
+        identity = 'The id is {}'.format(id(self))
+        return identity
 
 
 class choices():
@@ -343,6 +393,16 @@ class choices():
                 print('Bad choice')
 
 
+    def __str__(self):
+        m = 'human choice is [{}] and computer choice is [{}]'.format(self.get_h_choice, self.get_c_choice)
+        return(m)
+    
+    
+    def __repr__(self):
+        identity = 'The id is {}'.format(id(self))
+        return identity               
+
+
 
 def clean():
     """
@@ -381,7 +441,7 @@ def main():
 
     # Main loop of this game
     board1 = board()
-    while len(board1.newboard().empty_cells()) > 0 and not board1.newboard().game_over():
+    while board1.board_depth() > 0 and not board1.game_over():
         if first == 'N':
             board1.ai_turn(c_choice, h_choice)
             first = ''
@@ -394,12 +454,12 @@ def main():
     HUMAN = board1.get_HUMAN()
     COMP = board1.get_COMP()
 
-    if board1.newboard().wins(HUMAN):
+    if board1.wins(HUMAN):
         clean()
         print(f'Human turn [{h_choice}]')
         board1.render(c_choice, h_choice)
         print('YOU WIN!')
-    elif board1.newboard().wins(COMP):
+    elif board1.wins(COMP):
         clean()
         print(f'Computer turn [{c_choice}]')
         board1.render(c_choice, h_choice)
