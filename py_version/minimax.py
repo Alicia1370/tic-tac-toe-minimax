@@ -20,10 +20,20 @@ CMPUT274, Fall 2020
 Weekly Exercise 6: OO Minimax
 """
 
-class board():
-    def __init__(self):
+class basic():
+    """docstring for basic"""
+    def __init__(self,):
         self.HUMAN = -1
         self.COMP = +1
+        
+    def get_HUMAN(self):
+        return(self.HUMAN)
+
+    def get_COMP(self):
+        return(self.COMP)
+
+class board(basic):
+    def __init__(self):
         self.board = [
                 [0, 0, 0],
                 [0, 0, 0],
@@ -33,12 +43,6 @@ class board():
 
     def get_board(self):
         return(self.board)
-
-    def get_HUMAN(self):
-        return(self.HUMAN)
-
-    def get_COMP(self):
-        return(self.COMP)
 
 
     def newstate(self, states):
@@ -53,31 +57,6 @@ class board():
         current_state = state(self.get_board()) 
         return(current_state)
 
-
-    def evaluate(self, state):
-        """
-        Function to heuristic evaluation of state.
-        :param state: the state of the current board
-        :return: +1 if the computer wins; -1 if the human wins; 0 draw
-        """
-
-        if self.newstate(state).wins(self.get_COMP()):
-            score = +1
-        elif self.newstate(state).wins(self.get_HUMAN()):
-            score = -1
-        else:
-            score = 0
-    
-        return score
-
-
-    def game_over(self, state):
-        """
-        This function test if the human or computer wins
-        :param state: the state of the current board
-        :return: True if the human or computer wins
-        """
-        return self.newstate(state).wins(self.get_HUMAN()) or self.newstate(state).wins(self.get_COMP())
 
     def valid_move(self, x, y):
         """
@@ -150,11 +129,13 @@ class board():
         else:
             best = [-1, -1, +infinity]
     
-        if depth == 0 or self.game_over(state):
-            score = self.evaluate(state)
+        newstate = self.newstate(state)
+
+        if depth == 0 or newstate.game_over():
+            score = newstate.evaluate()
             return [-1, -1, score]
 
-        for cell in self.newstate(state).empty_cells():
+        for cell in newstate.empty_cells():
             x, y = cell[0], cell[1]
             state[x][y] = player
             score = self.minimax(state, depth - 1, -player)
@@ -167,7 +148,6 @@ class board():
             else:
                 if score[2] < best[2]:
                     best = score  # min value
-
         return best
 
     def ai_turn(self, c_choice, h_choice):
@@ -180,7 +160,7 @@ class board():
         """
 
         depth = len(self.newboard().empty_cells())
-        if depth == 0 or self.game_over(self.get_board()):
+        if depth == 0 or self.newboard().game_over():
             return
     
         clean()
@@ -208,7 +188,7 @@ class board():
         """
 
         depth = len(self.newboard().empty_cells())
-        if depth == 0 or self.game_over(self.get_board()):
+        if depth == 0 or self.newboard().game_over():
             return
     
         # Dictionary of valid moves
@@ -239,14 +219,32 @@ class board():
                 print('Bad choice')
 
 
-class state(board):
+class state(basic):
     """docstring for stat"""
     def __init__(self, state):
-        super().__init__()
         self.state = state
-        
+ 
+
     def get_state(self):
         return(self.state)
+
+
+    def evaluate(self):
+        """
+        Function to heuristic evaluation of state.
+        :param state: the state of the current board
+        :return: +1 if the computer wins; -1 if the human wins; 0 draw
+        """
+
+        if self.wins(self.get_COMP()):
+            score = +1
+        elif self.wins(self.get_HUMAN()):
+            score = -1
+        else:
+            score = 0
+    
+        return score
+
 
     def wins(self, player):
         """
@@ -275,6 +273,14 @@ class state(board):
             return False
     
 
+    def game_over(self):
+        """
+        This function test if the human or computer wins
+        :param state: the state of the current board
+        :return: True if the human or computer wins
+        """
+        return self.wins(self.get_HUMAN()) or self.wins(self.get_COMP())
+
     def empty_cells(self):
         """
         Each empty cell will be added into cells' list
@@ -289,6 +295,53 @@ class state(board):
                     cells.append([x, y])
     
         return cells
+
+
+class choices():
+    def __init__(self):
+        self.h_choice = ''  # X or O
+        self.c_choice = ''  # X or O
+        self.first = ''  # if human is the first
+
+    def get_c_choice(self):
+        return(self.c_choice)
+
+    def get_h_choice(self):
+        return(self.h_choice)
+
+    def get_first(self):
+        return(self.first)
+
+    def choose_pattern(self):
+        # Human chooses X or O to play
+        while self.h_choice != 'O' and self.h_choice != 'X':
+            try:
+                print('')
+                self.h_choice = input('Choose X or O\nChosen: ').upper()
+            except (EOFError, KeyboardInterrupt):
+                print('Bye')
+                exit()
+            except (KeyError, ValueError):
+                print('Bad choice')
+
+        # Setting computer's choice
+        if self.h_choice == 'X':
+            self.c_choice = 'O'
+        else:
+            self.c_choice = 'X'
+
+
+    def play_order(self):
+        # Human may starts first
+        while self.first != 'Y' and self.first != 'N':
+            try:
+                self.first = input('First to start?[y/n]: ').upper()
+            except (EOFError, KeyboardInterrupt):
+                print('Bye')
+                exit()
+            except (KeyError, ValueError):
+                print('Bad choice')
+
 
 
 def clean():
@@ -306,7 +359,6 @@ def clean():
         system('clear')
 
 
-
 def main():
     """
     Main function that calls all functions
@@ -316,43 +368,20 @@ def main():
     randomseed(274 + 2020)
 
     clean()
-    h_choice = ''  # X or O
-    c_choice = ''  # X or O
-    first = ''  # if human is the first
-
+    choice = choices()
     # Human chooses X or O to play
-    while h_choice != 'O' and h_choice != 'X':
-        try:
-            print('')
-            h_choice = input('Choose X or O\nChosen: ').upper()
-        except (EOFError, KeyboardInterrupt):
-            print('Bye')
-            exit()
-        except (KeyError, ValueError):
-            print('Bad choice')
-
     # Setting computer's choice
-    if h_choice == 'X':
-        c_choice = 'O'
-    else:
-        c_choice = 'X'
-
+    choice.choose_pattern()
+    c_choice = choice.get_c_choice()
+    h_choice = choice.get_h_choice()
     # Human may starts first
     clean()
-    while first != 'Y' and first != 'N':
-        try:
-            first = input('First to start?[y/n]: ').upper()
-        except (EOFError, KeyboardInterrupt):
-            print('Bye')
-            exit()
-        except (KeyError, ValueError):
-            print('Bad choice')
+    choice.play_order()
+    first = choice.get_first()
 
     # Main loop of this game
     board1 = board()
-
-
-    while len(board1.newboard().empty_cells()) > 0 and not board1.game_over(board1.get_board()):
+    while len(board1.newboard().empty_cells()) > 0 and not board1.newboard().game_over():
         if first == 'N':
             board1.ai_turn(c_choice, h_choice)
             first = ''
@@ -362,7 +391,6 @@ def main():
 
 
     # Game over message
-
     HUMAN = board1.get_HUMAN()
     COMP = board1.get_COMP()
 
